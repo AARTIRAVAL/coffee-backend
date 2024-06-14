@@ -1,44 +1,29 @@
-//require('dotenv').config()
-import dotenv from "dotenv"
+
+import express from "express";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
 import connectDB from "./db/index.js";
+import authRoutes from "./routes/user.routes.js";
 
-dotenv.config({
-    path: './env'
-})
+const app = express();
 
+dotenv.config();
 
-connectDB()
-.then(() => {
-    application.listen(process.env.PORT || 8000, () => {
-        console.log(` server is running at port : ${process.env.PORT}`);
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log("DB connected");
     })
-})
-.catch((err) => {
-    console.log("MONGO db connection faild !!!", err);
-})
+    .catch((error) => {
+        console.error("DB connection error:", error);
+    });
 
+app.use(express.json());
 
+app.use("/api/v1/user/", authRoutes);
 
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+    console.log(`Server is running at port: ${PORT}`);
+});
 
-
-/*
-import express from "express"
-const app = express()
-
-( async () => {
-    try {
-        await mongoose.connect('${process.env.MONGODB_URI}/${DB_NAME}')
-        app.on("error", () => {
-            console.log("ERROR:, error");
-            throw error
-        })
-
-        app.listen(process.env.PORT, () => {
-            console.log(`App is listening on port $ {process.env.PORT}`);
-        })
-    }catch (error) {
-        console.log("ERROR: ", error)
-        throw err
-    }
-})()
-*/
